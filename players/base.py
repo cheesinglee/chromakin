@@ -5,6 +5,7 @@ Created on Aug 13, 2012
 '''
 
 from chromakin.game import ChromakinGame
+from copy import deepcopy
 
 class PlayerBase(object):
     """ Base Polychrome Player class
@@ -144,7 +145,7 @@ class PlayerBase(object):
         compute the difference in score if the player were to pick up a
         particular pile.
         """
-        cards_new = self.cards
+        cards_new = deepcopy(self.cards)
         for color in pile:
             cards_new[color] += 1
         return (ChromakinGame.score(cards_new, self.game_state['scoring']) 
