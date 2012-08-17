@@ -5,13 +5,10 @@ Created on Aug 13, 2012
 '''
 
 from __future__ import print_function
-from random import shuffle, sample, random
+from random import shuffle, sample
 from itertools import combinations_with_replacement
-import sys
 from copy import deepcopy
-
-if sys.version_info.major == 2:
-    input = raw_input
+import logging
 
 # define scoring schemes
 scoring1 = [0,1,3,6,10,15,21]
@@ -26,6 +23,7 @@ class ChromakinGame(object):
     deck = []
     players = []
     two_player = False
+    n_players = 0 
     colors = ['green','blue','brown','yellow','gray','pink','orange']
     piles = []
     piles_taken = []
@@ -33,15 +31,23 @@ class ChromakinGame(object):
     log_buffer = ''
     log_mode = 'buffer'
     log_filename = ''
+    last_action = ()
+#    game_update_signal = []
+    last_round = False
+    n_rounds = 0
+    player_idx = 0
+    players_out = []
+    game_over = False
+    logger = logging.getLogger('chromakin.custom')
 
     def __init__(self,players,scoring):
         self.scoring = scoring
         self.players = players
         self.two_player = len(self.players) == 2
-        if not self.two_player:
-            self.piles = [list() for p in self.players]
-        else:
-            self.piles = [list(),list(),list()]
+#        self.game_update_signal = Signal(providing_args=['game_state']) 
+        self.n_players = len(self.players)
+        self.initialize_game()           
+        
 
     def initialize_deck(self):
         """ populate the Chromakin deck """
@@ -64,20 +70,14 @@ class ChromakinGame(object):
         unique_cards = set(self.deck)
         for p in self.players:
             p.cards = dict(zip(unique_cards,list([0])*len(unique_cards)))
-
-    def play(self):
-        """ Play one game of Chromakin
-        """
+            
+    def initialize_game(self):
         self.initialize_deck()
-        if not self.two_player:
-            self.piles = [list() for p in self.players]
-        else:
-            self.piles = [list(),list(),list()]
-        n_players = len(self.players)
+        
         # deal initial colors
         if not self.two_player:
-            start_colors = sample(self.colors,n_players)
-            for i in range(n_players):
+            start_colors = sample(self.colors,self.n_players)
+            for i in range(self.n_players):
                 self.players[i].take_cards([start_colors[i]])
                 self.deck.remove(start_colors[i])
         else:
@@ -87,85 +87,117 @@ class ChromakinGame(object):
             for i in range(4):
                 self.deck.remove(start_colors[i])
         shuffle(self.deck)
-
-        last_round = False
-        player_idx = -1
-        n_rounds = 0
-        while not last_round:
-            n_rounds += 1
-            self.log('\n----Round '+str(n_rounds)+'----')
-            # clear the piles
-            if not self.two_player:
-                self.piles = [list() for p in self.players]
-            else:
-                self.piles = [list(),list(),list()]
-            # all players are in again
-            if not self.two_player:
-                self.piles_taken = [False]*n_players
-            else:
-                self.piles_taken = [False]*3
-            for p in self.players:
-                p.out = False
-                self.print_player_status(p)
-            all_out = False
-            while not all_out:
-                # choose next player
-                while True:
-                    player_idx += 1
-                    if player_idx == n_players:
-                        player_idx = 0
-                    if not self.players[player_idx].out:
-                        break
-                player = self.players[player_idx]
-                self.log("\nIt's "+player.name+"'s turn")
-                self.print_piles()
-                self.update_players()
-                if not any(self.piles):
-                    # all piles are empty, player must draw
-                    self.log('All piles are empty, draw a card')
-                    c = self.deck.pop(0)
-                    self.log('Drew a '+c)
-                    pile_idx = player.select_pile(c)
-                    self.piles[pile_idx].append(c)
-                    self.log('Placed on pile '+str(pile_idx))
-                elif self.all_piles_full():
-                    # all available piles full, player must take one
-                    self.log('All available piles are full')
-                    pile_idx = player.select_pile()
-                    player.take_cards(self.piles[pile_idx])
-                    self.piles[pile_idx] = []
-                    self.piles_taken[pile_idx] = True
-                    self.log(player.name+' takes pile '+str(pile_idx))
-                    player.out = True
-                else:
-                    # player can choose an action
-                    action = player.get_action()
-                    if action == 'take':
-                        pile_idx = player.select_pile()
-                        player.take_cards(self.piles[pile_idx])
-                        self.piles[pile_idx] = []
-                        self.piles_taken[pile_idx] = True
-                        self.log(player.name+' takes pile '+str(pile_idx))
-                        player.out = True
-                    elif action == 'draw':
-                        c = self.deck.pop(0)
-                        self.log('Drew a '+c)
-                        pile_idx = player.select_pile(c)
-                        self.piles[pile_idx].append(c)
-                        self.log('Placed on pile '+str(pile_idx))
-                # check for last round
-                cards_left = len(self.deck)
-                self.log('Cards left: '+str(cards_left))
-                if cards_left < 15:
-                    self.log('Last Round!')
-                    last_round = True
-                # check if everyone is out
-                all_out = True
-                for p in self.players:
-                    all_out = all_out and p.out
+        
+        # randomly pick start player
+        self.player_idx = sample(range(self.n_players),1)[0]
+        self.last_round = False
+        self.n_rounds = 0
+        
+    def new_round(self):
+        # check for game over
+        if self.last_round:
+            self.game_over = True
+            return
+        
+        self.n_rounds += 1
+        self.log('\n----Round '+str(self.n_rounds)+'----')
+        # clear the piles
+        if not self.two_player:
+            self.piles = [list() for p in self.players]
+        else:
+            self.piles = [list(),list(),list()]
+        # all players are in again
+        if not self.two_player:
+            self.piles_taken = [False]*self.n_players
+        else:
+            self.piles_taken = [False]*3
+        self.players_out = [False]*self.n_players
+        for p in self.players:
+            p.out = False
+            self.print_player_status(p)
+            
+    def step(self):
+        
+        # check if everyone is out
+        all_out = True
+        for is_out in self.players_out:
+            all_out = all_out and is_out
+        if all_out:
+            self.new_round()
             # adjust the player index so that the last player to take in this
             # round is the starting player for the next round
-            player_idx -= 1
+            self.player_idx -= 1
+            
+        # check for end of game
+        if self.game_over:
+            return
+            
+        # choose next player
+        while True:
+            self.player_idx += 1
+            if self.player_idx == self.n_players:
+                self.player_idx = 0
+            if not self.players_out[self.player_idx]:
+                break
+                
+        player = self.players[self.player_idx]
+        self.log("\nIt's "+player.name+"'s turn")
+        self.print_piles()
+        self.update_players()
+        if not any(self.piles):
+            # all piles are empty, player must draw
+            self.log('All piles are empty, draw a card')
+            c = self.deck.pop(0)
+            self.log('Drew a '+c)
+            pile_idx = player.select_pile(c)
+            self.piles[pile_idx].append(c)
+            self.log('Placed on pile '+str(pile_idx))
+            self.last_action = (self.player_idx,'draw',pile_idx)
+        elif self.all_piles_full():
+            # all available piles full, player must take one
+            self.log('All available piles are full')
+            pile_idx = player.select_pile()
+            player.take_cards(self.piles[pile_idx])
+            self.piles[pile_idx] = []
+            self.piles_taken[pile_idx] = True
+            self.log(player.name+' takes pile '+str(pile_idx))
+            player.out = True
+            self.players_out[self.player_idx] = True
+            self.last_action = (self.player_idx,'take',pile_idx)
+        else:
+            # player can choose an action
+            action = player.get_action()
+            if action == 'take':
+                pile_idx = player.select_pile()
+                player.take_cards(self.piles[pile_idx])
+                self.piles[pile_idx] = []
+                self.piles_taken[pile_idx] = True
+                self.log(player.name+' takes pile '+str(pile_idx))
+                player.out = True
+                self.players_out[self.player_idx] = True
+                self.last_action = (self.player_idx,'take',pile_idx)
+            elif action == 'draw':
+                c = self.deck.pop(0)
+                self.log('Drew a '+c)
+                pile_idx = player.select_pile(c)
+                self.piles[pile_idx].append(c)
+                self.log('Placed on pile '+str(pile_idx))
+                self.last_action = (self.player_idx,'draw',pile_idx)
+        # check for last round
+        cards_left = len(self.deck)
+        self.log('Cards left: '+str(cards_left))
+        if cards_left < 15:
+            self.log('Last Round!')
+            self.last_round = True
+
+    def play(self):
+        """ Play one game of Chromakin
+        """
+        
+        self.initialize_game()
+        while not self.game_over:
+            self.step()
+            
         self.log('\n----Game Over----')
         final_scores = self.compute_scores()
         for p in self.players:
@@ -175,7 +207,7 @@ class ChromakinGame(object):
         self.log('Remaining cards: '+str(self.deck))
         # determine the winner
         winner = 0
-        for i in range(n_players):
+        for i in range(self.n_players):
             if final_scores[i] > final_scores[winner]:
                 winner = i
         self.log(self.players[winner].name+' is the winner')
@@ -268,6 +300,10 @@ class ChromakinGame(object):
         game_state['piles'] = deepcopy(self.piles)
         game_state['piles_taken'] = deepcopy(self.piles_taken)
         game_state['two_player'] = self.two_player
+        game_state['last_action'] = self.last_action
+        game_state['n_rounds'] = self.n_rounds
+        game_state['game_over'] = self.game_over
+        game_state['last_round'] = self.last_round
         return game_state
     
     def update_players(self):
@@ -275,7 +311,9 @@ class ChromakinGame(object):
         for p in self.players:
             opponent_cards = [deepcopy(other_p.cards) for other_p in self.players \
                               if other_p is not p]
-            p.update(game_state)
+            game_state_p = dict(game_state)
+            game_state_p['cards'] = opponent_cards
+            p.update(game_state_p)
 
     def all_piles_full(self):
         """ check if all available piles are full """
@@ -299,6 +337,7 @@ class ChromakinGame(object):
     def log(self,s):
         if self.log_mode == 'buffer':
             self.log_buffer += s+'\n'
+            self.logger.debug(s)
         elif self.log_mode == 'print':
             print(s)
         elif self.log_mode == 'file':

@@ -1,3 +1,12 @@
 {% extends 'base.html' %}
 
 <button type="draw" onclick="draw()">Draw</button>
+
+{% block container %}
+<div id="playcontainer">
+</div>
+<div id="logcontainer">
+ <textarea id="textArea">{{log}}</textarea>
+ <div id="textCopy"></div>
+</div>
+{% endblock %}

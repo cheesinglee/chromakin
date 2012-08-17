@@ -1,4 +1,5 @@
 from django.db import models
+from django_extensions.db.fields import json
 from django import forms
 
 # Create your models here.
@@ -21,8 +22,8 @@ class Game (models.Model):
     start_date = models.DateTimeField('Game Started')
     end_date = models.DateTimeField('Game Ended')
     players = models.ManyToManyField(Player)
-    starting_deck = models.TextField()
-    action_history = models.TextField()
-    
+    starting_deck = json.JSONField()
+    action_history = json.JSONField()
+
     def __unicode__(self):
         return self.start_date

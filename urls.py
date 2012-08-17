@@ -4,5 +4,6 @@ from chromakin.models import Player
 
 urlpatterns = patterns('',
     url(r'^$','chromakin.views.setup_game'),
-    url(r'^startgame/$','chromakin.views.start_game')
+    url(r'^startgame/$','chromakin.views.start_game'),
+    url(r'^gameupdate/$','chromakin.views.update_game'),
 )

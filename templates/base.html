@@ -7,12 +7,19 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="robots" content="noarchive" />
-<title>{% block title %} Word Confusion! {% endblock %}</title>
+<title>{% block title %} Chromakin {% endblock %}</title>
 
 <script src="{% static "js/jquery-1.7.2.min.js" %}" type="text/javascript"
     charset="utf-8"></script>
 <script src="{% static "js/jquery-ui-1.8.22.custom.min.js" %}" type="text/javascript"
     charset="utf-8"></script>
+    
+<script type="text/javascript">
+    //<![CDATA[
+        {% include 'chromakin.js' %}
+    //]]>
+</script>    
+    
 <style type="text/css">
         {% include 'chromakin.css' %}
 </style>
