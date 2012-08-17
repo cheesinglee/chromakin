@@ -10,7 +10,7 @@ class Player(models.Model):
     games_played = models.IntegerField()
     wins = models.IntegerField()
     type = models.CharField(max_length=2, choices=PLAYER_TYPES)
-    classname = models.CharField('Fully-qualified classname for AI implementation',
+    module = models.CharField('Fully-qualified module for AI implementation',
                                  max_length=200)
     description = models.CharField(max_length=800)
     

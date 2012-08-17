@@ -11,7 +11,7 @@ function validate_select(){
     <select id="player{{i}}" name="player{{i}}">
         <option value="none">None</option>
         {% for player in player_list %}
-        <option value={{player.classname}}>{{player.name}}</option>
+        <option value={{player.pk}}>{{player.name}}</option>
         {% endfor %}
     </select>
     <br />

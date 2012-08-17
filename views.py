@@ -29,7 +29,7 @@ def update_ai_list():
     new_types = [ai for ai in ai_types if ai.__name__ not in known_types]
     for ai in new_types:
         logger.debug('creating Player for '+ai.__name__)
-        p = Player(type='AI',classname=ai.__module__+'.'+ai.__name__,
+        p = Player(type='AI',module=ai.__module__,
                    name=ai.__name__, description=ai.__doc__,
                    wins=0, games_played=0)
         p.save()
@@ -40,11 +40,15 @@ def setup_game(request):
     return render_to_response('setup_game.html',{'player_list':player_list},context_instance=RequestContext(request))
 
 def start_game(request):
+    import sys
     player_list = []
     for i in range(1,6):
-        classname = request.POST['player'+str(i)]
-        if classname != 'none':
-            p = eval(classname[18:]+'("bot'+str(i)+'")')
+        try:
+            selected_ai = Player.objects.get(pk=request.POST['player'+str(i)])
+        except:
+            pass
+        else:
+            p = sys.modules[selected_ai.module].__dict__[selected_ai.name](selected_ai.name)
             player_list.append(p)
     game = ChromakinGame(player_list,[0,1,3,6,10,15,21])
     game.play()
