@@ -1,0 +1,27 @@
+<script type="text/javascript">
+function validate_select(){
+    
+}
+</script>
+
+<form action="/chromakin/startgame/" method="post">
+{% csrf_token %}
+{% for i in 12345|make_list %}
+    <label for="player{{i}}">Player {{i}}</label>
+    <select id="player{{i}}" name="player{{i}}">
+        <option value="none">None</option>
+        {% for player in player_list %}
+        <option value={{player.classname}}>{{player.name}}</option>
+        {% endfor %}
+    </select>
+    <br />
+{% endfor %}
+
+{% comment %}
+{% for choice in poll.choice_set.all %}
+    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" />
+    <label for="choice{{ forloop.counter }}">{{ choice.choice }}</label><br />
+{% endfor %}
+{% endcomment %}
+<input type="submit" value="Start New Game" />
+</form>
