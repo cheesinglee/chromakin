@@ -123,13 +123,21 @@ function renderGameState(state){
         self.clearInterval(id_interval)
     }
     
-    
-    // draw piles
-    //var n_piles = state.piles.length ;
-    //for ( n = 0 ; n < n_piles ; n++){
-    //    console.log(state.piles[n])
-    //    drawPile(state.piles[n],n)
-    //}
+    // hack to clear last untaken pile in 2-player game
+    if (state.two_player){
+        n_taken = 0 ;
+        for ( i = 0 ; i < state.piles_taken.length ; i++){
+            if(state.piles_taken[i]){
+                n_taken += 1
+            }
+            
+        }
+        if(n_taken==2){
+            animateAction([0,'take',0],state.piles)
+            animateAction([0,'take',1],state.piles)
+            animateAction([0,'take',2],state.piles)
+        }
+    }
 }
 
 $(document).ready(function() {

@@ -6,7 +6,7 @@
 <div id="playcontainer">
     <object id="card_template" data="{{ STATIC_URL }}img/card_solid.svg" type="image/svg+xml"></object>
     <div id="pilecontainer">
-    {% for i in state.n_players|get_range %}
+    {% for i in state.piles|length|get_range %}
     <span>
     <object class="pile" data="{{ STATIC_URL }}img/empty_pile.svg"></object>
     <object class="first_card" data="{{ STATIC_URL }}img/card_solid.svg" type="image/svg+xml"></object>

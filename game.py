@@ -51,11 +51,13 @@ class ChromakinGame(object):
 
     def initialize_deck(self):
         """ populate the Chromakin deck """
+        self.colors=['green','blue','brown','yellow','gray','pink','orange']
 
         # 7 colors (if >3 players, 6 if >2 players, else 5 colors), 9 of each
         reduce_colors_by = 2 if len(self.players) == 2 else 1 if len(self.players) == 3 else 0
         self.deck = self.colors[reduce_colors_by:]*9
         self.colors = self.colors[reduce_colors_by:]
+        self.logger.debug(self.colors)
 
         # 3 wilds
         self.deck.extend(['wild']*3)
@@ -87,6 +89,12 @@ class ChromakinGame(object):
             for i in range(4):
                 self.deck.remove(start_colors[i])
         shuffle(self.deck)
+        
+        # initialize piles
+        if not self.two_player:
+            self.piles = [list() for p in self.players]
+        else:
+            self.piles = [list(),list(),list()]
         
         # randomly pick start player
         self.player_idx = sample(range(self.n_players),1)[0]
