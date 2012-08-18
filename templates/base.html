@@ -1,5 +1,4 @@
 {% load staticfiles %}
-{% load chromakin_extras %}
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -11,9 +10,10 @@
 
 <script src="{% static "js/jquery-1.7.2.min.js" %}" type="text/javascript"
     charset="utf-8"></script>
+{%comment%}
 <script src="{% static "js/jquery-ui-1.8.22.custom.min.js" %}" type="text/javascript"
     charset="utf-8"></script>
-    
+{%endcomment%}
 <script type="text/javascript">
     //<![CDATA[
         {% include 'chromakin.js' %}

@@ -72,13 +72,14 @@ def start_game(request):
     
     if cache.get(key) is None:
         logger.error('failed to verify cache write!')
-    log = game.deck[0]
-    return render_to_response('game.html',{'log':log})
+    game_state = game.get_game_state()
+    return render_to_response('game.html',{'state':game_state},
+                              context_instance=RequestContext(request))
 
 def update_game(request):
     logger = logging.getLogger('chromakin.custom')
     key = request.session['game_key']
-    logger.debug('Accessing cached game object with key '+key)
+#    logger.debug('Accessing cached game object with key '+key)
     game = cache.get(key)
     if game is None:
         logger.error('cache miss!')
@@ -86,7 +87,7 @@ def update_game(request):
     state = game.get_game_state()
     json_state = simplejson.dumps(state)
     cache.set(key,game,600)
-    logger.debug('returning JSON string: '+json_state)
+#    logger.debug('returning JSON string: '+json_state)
     return HttpResponse(json_state,mimetype='application/json')    
 
 def game(request):

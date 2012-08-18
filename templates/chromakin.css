@@ -9,6 +9,49 @@ body{
     padding:0px ;
 }
 
+
+#pilecontainer{
+    position:absolute;
+    top:5%;
+    width:70%;
+    height:70%;
+    display:table;
+    left:15%
+}
+
+#pilecontainer>span{
+    display:table-cell;
+    position:relative
+}
+
+object{
+    height:60%
+}
+
+.first_card, .second_card, .third_card{
+    left:0%;
+    position: absolute;
+/*    display: none*/
+    visibility: hidden;
+}
+
+.first_card{
+    top:0%;
+}
+
+.second_card{
+    top:20%;
+}
+
+.third_card{
+    top:40%;
+}
+
+#card_template{
+    visibility: hidden;;
+}
+
+
 #playcontainer{
     height: 80% ;
     width:100%;
@@ -16,6 +59,7 @@ body{
     position:absolute;
     top: 0;
     margin:5px;
+    padding:5px;
     box-sizing: border-box;
     -moz-box-sizing: border-box ;
     -webkit-box-sizing: border-box;

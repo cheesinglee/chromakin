@@ -304,6 +304,7 @@ class ChromakinGame(object):
         game_state['n_rounds'] = self.n_rounds
         game_state['game_over'] = self.game_over
         game_state['last_round'] = self.last_round
+        game_state['n_players'] = self.n_players
         return game_state
     
     def update_players(self):
