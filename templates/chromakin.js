@@ -31,7 +31,7 @@ function pollGame(){
 function animateAction(action,piles){
     action_type = action[1]
     pile_idx = action[2]
-    pile_obj = $('#pilecontainer span').eq(pile_idx)
+    pile_obj = $('#pilecontainer div').eq(pile_idx)
     if (action_type == 'take'){
         console.log('taking pile '+pile_idx)
         pile_obj.find('.first_card, .second_card, .third_card')
@@ -40,7 +40,7 @@ function animateAction(action,piles){
     else if (action_type == 'draw'){        
         // compose the selector for the new card
         card_idx = piles[pile_idx].length
-        selector_template = "#pilecontainer span:eq(X) object:eq(Y)"
+        selector_template = "#pilecontainer div:eq(X) object:eq(Y)"
         selector = selector_template.replace('X',String(pile_idx)) ;
         selector = selector.replace('Y',card_idx)
         
@@ -62,11 +62,11 @@ function animateAction(action,piles){
             $(selector)[0].getSVGDocument()
                 .getElementById('single_gradient')
                 .getElementsByTagName("stop")[0]
-                .style['stop-color']=color_values['bonus']
+                .style['stopColor']=color_values['bonus']
             $(selector)[0].getSVGDocument()
                 .getElementById('single_gradient')
                 .getElementsByTagName("stop")[1]
-                .style['stop-color']=color_values['bonus']
+                .style['stopColor']=color_values['bonus']
             $(selector)[0].getSVGDocument()
                 .getElementById('bonus_text')
                 .style['visibility'] = 'visible'
@@ -78,11 +78,11 @@ function animateAction(action,piles){
             $(selector)[0].getSVGDocument()
                 .getElementById('single_gradient')
                 .getElementsByTagName("stop")[0]
-                .style['stop-color']=color_values[color]
+                .style['stopColor']=color_values[color]
             $(selector)[0].getSVGDocument()
                 .getElementById('single_gradient')
                 .getElementsByTagName("stop")[1]
-                .style['stop-color']=color_values[color]
+                .style['stopColor']=color_values[color]
             $(selector)[0].getSVGDocument()
                 .getElementById('bonus_text')
                 .style['visibility'] = 'hidden'
@@ -96,6 +96,8 @@ function sortCards(cards){
     // are converted to generic JS Objects when passed from Django
     // this function creates a list of colors ordered from most cards
     // to least
+    
+    // TODO: order of colors with the same counts is not consistent
     
     list = []
     for (c in cards){

@@ -6,16 +6,16 @@
 <div id="gamecontainer">
     <div id="pilecontainer">
     {% for i in state.piles|length|get_range %}
-    <span>
+    <div>
     <object class="pile" data="{{ STATIC_URL }}img/empty_pile.svg"></object>
     <object class="first_card" data="{{ STATIC_URL }}img/card.svg" type="image/svg+xml"></object>
     <object class="second_card" data="{{ STATIC_URL }}img/card.svg" type="image/svg+xml"></object>
     <object class="third_card" data="{{ STATIC_URL }}img/card.svg" type="image/svg+xml"></object>
-    </span>
+    </div>
     {% endfor %}
-    <span>
+    <div>
         <object class="deck" data="{{ STATIC_URL }}img/deck.svg"></object>
-    </span>
+    </div>
     </div>
 </div>
 <div id="playercontainer">
