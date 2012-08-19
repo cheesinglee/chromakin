@@ -52,7 +52,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -63,7 +63,7 @@
      transform="translate(0,-740.55116)">
     <g
        id="g8721"
-       transform="translate(-0.8112714,-0.36176053)">
+       transform="matrix(0.96809296,0,0,0.96809296,-0.96119266,27.956912)">
       <rect
          ry="32.986832"
          rx="32.986832"
@@ -491,7 +491,7 @@
       </g>
     </g>
     <g
-       transform="translate(3.1887286,-4.3617605)"
+       transform="matrix(0.96809296,0,0,0.96809296,2.9111792,24.08454)"
        id="g8721-8">
       <rect
          ry="32.986832"
@@ -920,7 +920,7 @@
       </g>
     </g>
     <g
-       transform="translate(7.1887286,-8.3617605)"
+       transform="matrix(0.96809296,0,0,0.96809296,6.783551,20.212168)"
        id="g8721-5">
       <rect
          ry="32.986832"
@@ -1349,7 +1349,7 @@
       </g>
     </g>
     <g
-       transform="translate(11.188729,-12.36176)"
+       transform="matrix(0.96809296,0,0,0.96809296,10.655923,16.339797)"
        id="g8721-3">
       <rect
          ry="32.986832"
@@ -1778,7 +1778,7 @@
       </g>
     </g>
     <g
-       transform="translate(15.188729,-16.36176)"
+       transform="matrix(0.96809296,0,0,0.96809296,14.528295,12.467425)"
        id="g8721-6">
       <rect
          ry="32.986832"
@@ -2207,7 +2207,7 @@
       </g>
     </g>
     <g
-       transform="translate(19.188729,-20.36176)"
+       transform="matrix(0.96809296,0,0,0.96809296,18.400667,8.5950528)"
        id="g8721-2">
       <rect
          ry="32.986832"

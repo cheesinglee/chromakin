@@ -25,7 +25,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.3290339"
-     inkscape:cx="341.10919"
+     inkscape:cx="247.43212"
      inkscape:cy="120.86779"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -101,7 +101,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -132,16 +132,18 @@
        inkscape:label="#rect3763" />
     <text
        xml:space="preserve"
-       style="visibility:hidden;font-size:64px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#0000ba;fill-opacity:1;stroke:none;font-family:Sans"
-       x="42.19931"
-       y="941.17914"
+       style="font-size:64px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#0000ba;fill-opacity:1;stroke:none;visibility:hidden;font-family:Sans"
+       x="47.854309"
+       y="934.97913"
        id="bonus_text"
        sodipodi:linespacing="125%"
        inkscape:label="#text5061"><tspan
          sodipodi:role="line"
          id="tspan5063"
-         x="42.19931"
-         y="941.17914"
-         style="font-size:111px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#0000ba;fill-opacity:1;font-family:Comic Sans MS;-inkscape-font-specification:Comic Sans MS Bold">+2</tspan></text>
+         x="47.854309"
+         y="934.97913"
+         style="font-size:111px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#0000ba;fill-opacity:1;font-family:Comic Sans MS;-inkscape-font-specification:Comic Sans MS Bold"
+         dx="0 -11.309992"
+         dy="0 6.1999998">+2</tspan></text>
   </g>
 </svg>

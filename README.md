@@ -17,8 +17,7 @@ Coloretto simulator in Django
 to the `INSTALLED_APPS` list
 4. If you don't have a cache set up for your django project, 
 append this to the end:
-
-    CACHES = {
+   CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             'LOCATION': 'chromakin-cache',
@@ -29,9 +28,7 @@ append this to the end:
         }
     }
 
-5. In your django project's `url.py` add the following entry to      
-`urlpatterns`:
-
+5. In your django project's `urls.py` add the following entry to `urlpatterns`:
     url(r'^chromakin/', include('chromakin.urls'))
         
 ## Running
