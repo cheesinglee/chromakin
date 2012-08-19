@@ -8,6 +8,7 @@ color_values["brown"] = "#663300"
 color_values["yellow"] = "#ffff00"
 color_values["gray"] = "#cccccc"
 color_values["green"] = "#006600"
+color_values["bonus"] = "#00ffff"
 
 var color_card_url = "{{ STATIC_URL }}img/card_solid.svg"
 var wild_card_url = "{{ STATIC_URL }}img/card_wild.svg"
@@ -25,51 +26,6 @@ function pollGame(){
         url:"{% url chromakin.views.update_game %}",
         success:renderGameState
     })
-}
-
-function drawPile(pile,pile_idx){
-    selector_template = "#pilecontainer span:eq(X)"
-    pileselector = selector_template.replace("X",String(pile_idx)) ;
-    
-    if (pile.length == 0){
-        selector = pileselector + " .first_card, .second_card, .third_card"
-        $(selector).css('visibility','hidden')
-    }
-    else{   
-        for ( i = 0 ; i < pile.length ; i++){
-            var card
-            if(i==0){
-                selector = pileselector + ' .first_card'
-                //card = $(selector).find('.first_card') 
-            }
-            else if(i==1){
-                selector = pileselector + ' .second_card'
-                //card = $selector.find('.second_card')
-            }
-            else if(i==2){
-                selector = pileselector + ' .third_card'
-                //card = $(selector).find('.third_card')
-            }
-            console.log(selector)
-                
-            if ($(selector).css('visibility') == 'hidden'){
-                if (pile[i] == "wild"){
-                    $(selector).attr('data',"{{ STATIC_URL }}img/card_wild.svg")
-                }
-                else if (pile[i] == "+2"){
-                    $(selector).attr('data',"{{ STATIC_URL }}img/card_bonus.svg")
-                }
-                else{
-                    $(selector).attr('data',color_card_url)
-                    color = color_values[pile[i]]
-                    $(selector)[0].getSVGDocument()
-                        .getElementById('color_area')
-                        .style['fill'] = color
-                }
-                $(selector).css('visibility','visible')
-            }
-        }
-    }
 }
 
 function animateAction(action,piles){
@@ -92,20 +48,51 @@ function animateAction(action,piles){
         color = piles[pile_idx][card_idx-1]
         console.log('placing '+color+' on pile '+pile_idx+' position '+card_idx)
         if(color=='wild'){
-            if($(selector).attr('data') != wild_card_url){
-                $(selector).attr('data',wild_card_url)
-            }
+            // if($(selector).attr('data') != wild_card_url){
+                // $(selector).attr('data',wild_card_url)
+            // }
+            $(selector)[0].getSVGDocument()
+                .getElementById('gradient')
+                .setAttribute('xlink:href',"#wild_gradient")
+            $(selector)[0].getSVGDocument()
+                .getElementById('bonus_text')
+                .style['visibility'] = 'hidden'
         }
         else if(color=='+2'){
-            if($(selector).attr('data') !=bonus_card_url){
-                $(selector).attr('data',bonus_card_url)
-            }
+            $(selector)[0].getSVGDocument()
+                .getElementById('gradient')
+                .setAttribute('xlink:href',"#single_gradient")
+            $(selector)[0].getSVGDocument()
+                .getElementById('single_gradient')
+                .getElementsByTagName("stop")[0]
+                .style['stop-color']=color_values['bonus']
+            $(selector)[0].getSVGDocument()
+                .getElementById('single_gradient')
+                .getElementsByTagName("stop")[1]
+                .style['stop-color']=color_values['bonus']
+            $(selector)[0].getSVGDocument()
+                .getElementById('bonus_text')
+                .style['visibility'] = 'visible'
         }
         else{
-            if($(selector).attr('data') != color_card_url){
-                $(selector).attr('data',color_card_url)
-            }
-            $(selector)[0].getSVGDocument().getElementById('color_area').style['fill'] = color_values[color]
+            // if($(selector).attr('data') != color_card_url){
+                // $(selector).attr('data',color_card_url)
+            // }
+            // $(selector)[0].getSVGDocument().getElementById('color_area').style['fill'] = color_values[color]
+            $(selector)[0].getSVGDocument()
+                .getElementById('gradient')
+                .setAttribute('xlink:href',"#single_gradient")
+            $(selector)[0].getSVGDocument()
+                .getElementById('single_gradient')
+                .getElementsByTagName("stop")[0]
+                .style['stop-color']=color_values[color]
+            $(selector)[0].getSVGDocument()
+                .getElementById('single_gradient')
+                .getElementsByTagName("stop")[1]
+                .style['stop-color']=color_values[color]
+            $(selector)[0].getSVGDocument()
+                .getElementById('bonus_text')
+                .style['visibility'] = 'hidden'
         }
         $(selector).css('visibility','visible')
     }
