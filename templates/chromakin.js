@@ -119,8 +119,19 @@ function renderGameState(state){
         }
     }
     
-    // update player statuses
+    // mark taken piles
+    for (i = 0 ; i < state.piles.length ; i++){
+        taken_marker = $(".pile")[i].getSVGDocument()
+                .getElementById('taken') 
+        if (state.piles_taken[i]){
+            taken_marker.style['visibility']='visible'                
+        }
+        else{
+            taken_marker.style['visibility'] = 'hidden'
+        }
+    }
     
+    // update player statuses
     // reset decorations
     $('.currentplayer').removeClass('currentplayer')
     $('.outplayer').removeClass('outplayer')

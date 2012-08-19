@@ -18,7 +18,6 @@ to the `INSTALLED_APPS` list
 4. If you don't have a cache set up for your django project, 
 append this to the end:
 
-
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -29,3 +28,15 @@ append this to the end:
             }
         }
     }
+
+5. In your django project's `url.py` add the following entry to      
+`urlpatterns`:
+
+    url(r'^chromakin/', include('chromakin.urls'))
+        
+## Running
+
+1. In your django project directory, run `./manage.py syncdb` to populate
+the database with the Chromakin data models
+2. Next start the development server with `./manage.py runserver`.
+3. In a web browser, navigate to [http://localhost:8000/chromakin](http://localhost:8000/chromakin) 
