@@ -187,7 +187,7 @@ class ChromakinGame(object):
             self.player_idx -= 1
             
         # choose next player
-        while True:
+        while True and not self.game_over:
             self.player_idx += 1
             if self.player_idx == self.n_players:
                 self.player_idx = 0
