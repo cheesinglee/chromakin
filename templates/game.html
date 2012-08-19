@@ -21,7 +21,8 @@
 <div id="playercontainer">
     {%for p in player_names%}
     <div class="playerbox">
-        <span>{{p}}</span> - <span id="score">0</span><br />
+        <span class="playername">{{p}}</span> - <span id="score">0</span><br />
+        Wilds: <span class="wilds">0</span>       Bonus: <span class="bonus">0</span><br />
     </div>
     {%endfor%}
 </div>

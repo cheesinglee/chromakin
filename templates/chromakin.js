@@ -91,6 +91,22 @@ function animateAction(action,piles){
     }
 }
 
+function sortCards(cards){
+    // the python dictionaries representing players's cards
+    // are converted to generic JS Objects when passed from Django
+    // this function creates a list of colors ordered from most cards
+    // to least
+    
+    list = []
+    for (c in cards){
+        if(c != 'wild' & c != '+2')
+            list.push(c)
+    }
+    list.sort(function(a,b){return cards[b]-cards[a]})
+    
+    return list
+}
+
 function renderGameState(state){
     var game_over = state.game_over
     if (!game_over){
@@ -139,10 +155,30 @@ function renderGameState(state){
     // decorate current player
     $('.playerbox').eq(state.current_player).addClass('currentplayer')
     
-    // decorate out players and display scores
     for (i=0 ; i < state.n_players; i++){
+        // display score
         $('.playerbox').eq(i)
             .find('#score').html(state.scores[i])
+            
+        // display cards
+        $('.playerbox').eq(i).find('div').remove()
+        card_template = "<div class='X'></div>"
+        player_cards = state.cards[i]
+        sorted_cards = sortCards(player_cards)
+        for (j=0 ; j < sorted_cards.length ; j++){
+            color = sorted_cards[j]
+            n_cards = player_cards[color]
+            for (k = 0 ; k < n_cards ; k++){
+                $('.playerbox').eq(i)
+                    .append(card_template.replace('X',color))
+            }
+        }  
+        $('.playerbox').eq(i)
+            .find('.wilds').html(player_cards['wild'])
+        $('.playerbox').eq(i)
+            .find('.bonus').html(player_cards['+2'])   
+        
+        // decorate out players
         if(state.players_out[i]){
             $('#playercontainer>div').eq(i)
                 .addClass('outplayer')
