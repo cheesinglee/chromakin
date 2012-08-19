@@ -48,9 +48,6 @@ function animateAction(action,piles){
         color = piles[pile_idx][card_idx-1]
         console.log('placing '+color+' on pile '+pile_idx+' position '+card_idx)
         if(color=='wild'){
-            // if($(selector).attr('data') != wild_card_url){
-                // $(selector).attr('data',wild_card_url)
-            // }
             $(selector)[0].getSVGDocument()
                 .getElementById('gradient')
                 .setAttribute('xlink:href',"#wild_gradient")
@@ -75,10 +72,6 @@ function animateAction(action,piles){
                 .style['visibility'] = 'visible'
         }
         else{
-            // if($(selector).attr('data') != color_card_url){
-                // $(selector).attr('data',color_card_url)
-            // }
-            // $(selector)[0].getSVGDocument().getElementById('color_area').style['fill'] = color_values[color]
             $(selector)[0].getSVGDocument()
                 .getElementById('gradient')
                 .setAttribute('xlink:href',"#single_gradient")
@@ -125,11 +118,30 @@ function renderGameState(state){
             animateAction([0,'take',2],state.piles)
         }
     }
+    
+    // update player statuses
+    
+    // reset decorations
+    $('.currentplayer').removeClass('currentplayer')
+    $('.outplayer').removeClass('outplayer')
+    
+    // decorate current player
+    $('.playerbox').eq(state.current_player).addClass('currentplayer')
+    
+    // decorate out players and display scores
+    for (i=0 ; i < state.n_players; i++){
+        $('.playerbox').eq(i)
+            .find('#score').html(state.scores[i])
+        if(state.players_out[i]){
+            $('#playercontainer>div').eq(i)
+                .addClass('outplayer')
+        }
+    }
 }
 
 $(document).ready(function() {
     // do stuff when DOM is ready
-    id_interval = self.setInterval(pollGame,2000) ;
+    id_interval = self.setInterval(pollGame,1000) ;
     
     $(function() {
         $(this.textBox)

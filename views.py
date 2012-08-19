@@ -73,7 +73,8 @@ def start_game(request):
     if cache.get(key) is None:
         logger.error('failed to verify cache write!')
     game_state = game.get_game_state()
-    return render_to_response('game.html',{'state':game_state},
+    player_names = [p.name for p in player_list]
+    return render_to_response('game.html',{'state':game_state,'player_names':player_names},
                               context_instance=RequestContext(request))
 
 def update_game(request):

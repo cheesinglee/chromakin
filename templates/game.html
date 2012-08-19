@@ -3,8 +3,7 @@
 <button type="draw" onclick="draw()">Draw</button>
 
 {% block container %}
-<div id="playcontainer">
-    <object id="card_template" data="{{ STATIC_URL }}img/card_solid.svg" type="image/svg+xml"></object>
+<div id="gamecontainer">
     <div id="pilecontainer">
     {% for i in state.piles|length|get_range %}
     <span>
@@ -18,6 +17,13 @@
         <object class="deck" data="{{ STATIC_URL }}img/deck.svg"></object>
     </span>
     </div>
+</div>
+<div id="playercontainer">
+    {%for p in player_names%}
+    <div class="playerbox">
+        <span>{{p}}</span> - <span id="score">0</span><br />
+    </div>
+    {%endfor%}
 </div>
 <div id="logcontainer">
  <textarea id="textArea">{{log}}</textarea>

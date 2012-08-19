@@ -90,16 +90,12 @@ class ChromakinGame(object):
                 self.deck.remove(start_colors[i])
         shuffle(self.deck)
         
-        # initialize piles
-        if not self.two_player:
-            self.piles = [list() for p in self.players]
-        else:
-            self.piles = [list(),list(),list()]
-        
         # randomly pick start player
         self.player_idx = sample(range(self.n_players),1)[0]
         self.last_round = False
         self.n_rounds = 0
+        
+        self.new_round()
         
     def new_round(self):
         # check for game over
@@ -124,29 +120,10 @@ class ChromakinGame(object):
             p.out = False
             self.print_player_status(p)
             
-    def step(self):
-        
-        # check if everyone is out
-        all_out = True
-        for is_out in self.players_out:
-            all_out = all_out and is_out
-        if all_out:
-            self.new_round()
-            # adjust the player index so that the last player to take in this
-            # round is the starting player for the next round
-            self.player_idx -= 1
-            
+    def step(self):                 
         # check for end of game
         if self.game_over:
             return
-            
-        # choose next player
-        while True:
-            self.player_idx += 1
-            if self.player_idx == self.n_players:
-                self.player_idx = 0
-            if not self.players_out[self.player_idx]:
-                break
                 
         player = self.players[self.player_idx]
         self.log("\nIt's "+player.name+"'s turn")
@@ -191,12 +168,32 @@ class ChromakinGame(object):
                 self.piles[pile_idx].append(c)
                 self.log('Placed on pile '+str(pile_idx))
                 self.last_action = (self.player_idx,'draw',pile_idx)
+                
         # check for last round
         cards_left = len(self.deck)
         self.log('Cards left: '+str(cards_left))
         if cards_left < 15:
             self.log('Last Round!')
             self.last_round = True
+            
+        # check if everyone is out
+        all_out = True
+        for is_out in self.players_out:
+            all_out = all_out and is_out
+        if all_out:
+            self.new_round()
+            # adjust the player index so that the last player to take in this
+            # round is the starting player for the next round
+            self.player_idx -= 1
+            
+        # choose next player
+        while True:
+            self.player_idx += 1
+            if self.player_idx == self.n_players:
+                self.player_idx = 0
+            if not self.players_out[self.player_idx]:
+                break
+            
 
     def play(self):
         """ Play one game of Chromakin
@@ -302,8 +299,10 @@ class ChromakinGame(object):
     
     def get_game_state(self):
         game_state = {}
-        cards = [deepcopy(other_p.cards) for other_p in self.players]
+        cards = [deepcopy(p.cards) for p in self.players]
         game_state['cards'] = cards
+        game_state['scores'] = [self.score(c, self.scoring) 
+                                for c in game_state['cards']]
         game_state['scoring'] = deepcopy(self.scoring)
         game_state['piles'] = deepcopy(self.piles)
         game_state['piles_taken'] = deepcopy(self.piles_taken)
@@ -313,15 +312,20 @@ class ChromakinGame(object):
         game_state['game_over'] = self.game_over
         game_state['last_round'] = self.last_round
         game_state['n_players'] = self.n_players
+        game_state['current_player'] = self.player_idx
+        game_state['players_out'] = self.players_out
         return game_state
     
     def update_players(self):
         game_state = self.get_game_state()
-        for p in self.players:
-            opponent_cards = [deepcopy(other_p.cards) for other_p in self.players \
-                              if other_p is not p]
+        for (i,p) in enumerate(self.players):
+            opponent_cards = list(game_state['cards'])
+            opponent_scores = list(game_state['scores'])
+            del opponent_cards[i]
+            del opponent_scores[i]
             game_state_p = dict(game_state)
             game_state_p['cards'] = opponent_cards
+            game_state_p['scores'] = opponent_scores
             p.update(game_state_p)
 
     def all_piles_full(self):
