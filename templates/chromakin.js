@@ -12,9 +12,7 @@ color_values["gray"] = "#cccccc"
 color_values["green"] = "#006600"
 color_values["bonus"] = "#00ffff"
 
-var color_card_url = "{{ STATIC_URL }}img/card_solid.svg"
-var wild_card_url = "{{ STATIC_URL }}img/card_wild.svg"
-var bonus_card_url = "{{ STATIC_URL }}img/card_bonus.svg"
+var player_names
 
 function autoSize() {
     // Copy textarea contents; browser will calculate correct height of copy,
@@ -106,11 +104,15 @@ function animateAction(action,piles){
         console.log('taking pile '+pile_idx)
         pile_obj.find('.first_card, .second_card, .third_card')
             .hide()
+        $('#textArea').append('\n'+player_names[action[0]]+' takes pile '+action[2])
+        $('#textArea').scrollTop(9999)
     }
     else if (action_type == 'draw'){
         color = action[2]
         setCardColor($(".drawn"),color)
         $(".drawn").show()
+        $('#textArea').append('\n'+player_names[action[0]]+' draws a '+action[2])
+        $('#textArea').scrollTop(9999)
     }
     else if (action_type == 'place'){        
         // compose the selector for the new card
@@ -135,6 +137,8 @@ function animateAction(action,piles){
         console.log('placing '+color+' on pile '+pile_idx+' position '+card_idx)
         setCardColor(card,color)
         card.show()
+        $('#textArea').append('\n'+player_names[action[0]]+' places on pile '+action[2])
+        $('#textArea').scrollTop(9999)
     }
 }
 
@@ -175,12 +179,22 @@ function renderGameState(state){
     var game_over = state.game_over
     $('.drawn').hide()
     var last_action = state.last_action
-    $("#textArea").val(last_action)
     animateAction(last_action,state.piles)
 
     if (game_over){
-        $("#textArea").val('game over!')
+        $("#textArea").append('\nGame Over!')
         self.clearInterval(id_interval)
+        idx_winner = 0
+        max_score = -99
+        winner = ''
+        for ( i = 0 ; i < state.n_players ; i++){
+            if (game_states.scores[i] > max_score){
+                max_score = game_states.score[i]
+                winner = player_names[i]
+            }
+        }
+        $('#textArea').append('\n'+winner+' is the winner')
+        $('#textArea').scrollTop(9999)
     }
     
     // hack to clear last untaken pile in 2-player game
@@ -265,6 +279,7 @@ function renderGameState(state){
 
 $(document).ready(function() {
     state = {{state|jsonify|safe}}
+    player_names = {{player_names|jsonify|safe}}
     renderGameState(state)
     // do stuff when DOM is ready
     if ({{state.current_player}} != 0){
