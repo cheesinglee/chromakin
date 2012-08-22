@@ -1,3 +1,5 @@
+{% load chromakin_extras %}
+
 var id_interval
 var do_poll = false
 var color_values = new Array()
@@ -163,15 +165,20 @@ function sortCards(cards){
 function renderGameState(state){
     if (state.last_action[1] == 'INVALID')
         return
+        
+    // display round number
+    $('#notification_area').html('Round '+state.n_rounds)
+    if (state.last_round){
+        $('#notification_area').append(' Last Round! ')
+    }
     
     var game_over = state.game_over
     $('.drawn').hide()
-    if (!game_over){
-        var last_action = state.last_action
-        $("#textArea").val(last_action)
-        animateAction(last_action,state.piles)
-    }
-    else{
+    var last_action = state.last_action
+    $("#textArea").val(last_action)
+    animateAction(last_action,state.piles)
+
+    if (game_over){
         $("#textArea").val('game over!')
         self.clearInterval(id_interval)
     }
@@ -257,16 +264,13 @@ function renderGameState(state){
 }
 
 $(document).ready(function() {
+    state = {{state|jsonify|safe}}
+    renderGameState(state)
     // do stuff when DOM is ready
     if ({{state.current_player}} != 0){
         do_poll = true
     }
     else{
-        state = new Object()
-        state.last_action = ''
-        state.idx = -1
-        state.piles = {{state.piles}}
-        enablePlayerInput(state)
         do_poll = false
     }
     

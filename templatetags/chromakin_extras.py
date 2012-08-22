@@ -5,6 +5,10 @@ Created on Aug 15, 2012
 '''
 
 from django.template import Library
+  
+from django.core.serializers import serialize
+from django.db.models.query import QuerySet
+from django.utils import simplejson
 
 register = Library()
 
@@ -29,3 +33,9 @@ def get_range( value ):
     
   """
   return range( value )
+
+@register.filter
+def jsonify(object):
+    if isinstance(object, QuerySet):
+        return serialize('json', object)
+    return simplejson.dumps(object)
