@@ -173,7 +173,7 @@ function renderGameState(state){
     // display round number
     $('#notification_area').html('Round '+state.n_rounds)
     if (state.last_round){
-        $('#notification_area').append(' Last Round! ')
+        $('#notification_area').append(' <blink>Last Round!</blink> ')
     }
     
     var game_over = state.game_over
@@ -188,8 +188,8 @@ function renderGameState(state){
         max_score = -99
         winner = ''
         for ( i = 0 ; i < state.n_players ; i++){
-            if (game_states.scores[i] > max_score){
-                max_score = game_states.score[i]
+            if (state.scores[i] > max_score){
+                max_score = state.scores[i]
                 winner = player_names[i]
             }
         }
