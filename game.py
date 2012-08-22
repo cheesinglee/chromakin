@@ -31,13 +31,13 @@ class ChromakinGame(object):
     log_buffer = ''
     log_mode = 'buffer'
     log_filename = ''
-    last_action = ()
-#    game_update_signal = []
+    last_action = (-1,'',-1)
     last_round = False
     n_rounds = 0
     player_idx = 0
     players_out = []
     game_over = False
+    drawn_card = ''
     logger = logging.getLogger('chromakin.custom')
 
     def __init__(self,players,scoring):
@@ -96,6 +96,7 @@ class ChromakinGame(object):
         self.n_rounds = 0
         
         self.new_round()
+        self.update_players()
         
     def new_round(self):
         # check for game over
@@ -129,30 +130,18 @@ class ChromakinGame(object):
         self.log("\nIt's "+player.name+"'s turn")
         self.print_piles()
         self.update_players()
-        if not any(self.piles):
-            # all piles are empty, player must draw
-            self.log('All piles are empty, draw a card')
-            c = self.deck.pop(0)
-            self.log('Drew a '+c)
-            pile_idx = player.select_pile(c)
-            self.piles[pile_idx].append(c)
-            self.log('Placed on pile '+str(pile_idx))
-            self.last_action = (self.player_idx,'draw',pile_idx)
-        elif self.all_piles_full():
-            # all available piles full, player must take one
-            self.log('All available piles are full')
-            pile_idx = player.select_pile()
-            player.take_cards(self.piles[pile_idx])
-            self.piles[pile_idx] = []
-            self.piles_taken[pile_idx] = True
-            self.log(player.name+' takes pile '+str(pile_idx))
-            player.out = True
-            self.players_out[self.player_idx] = True
-            self.last_action = (self.player_idx,'take',pile_idx)
-        else:
-            # player can choose an action
-            action = player.get_action()
-            if action == 'take':
+        self.log('last action: '+ str(self.last_action))
+        if self.last_action[1] != 'draw':
+            if not any(self.piles):
+                # all piles are empty, player must draw
+                self.log('All piles are empty, draw a card')
+                c = self.deck.pop(0)
+                self.log('Drew a '+c)
+                self.drawn_card = c
+                self.last_action = (self.player_idx,'draw',c)
+            elif self.all_piles_full():
+                # all available piles full, player must take one
+                self.log('All available piles are full')
                 pile_idx = player.select_pile()
                 player.take_cards(self.piles[pile_idx])
                 self.piles[pile_idx] = []
@@ -161,14 +150,31 @@ class ChromakinGame(object):
                 player.out = True
                 self.players_out[self.player_idx] = True
                 self.last_action = (self.player_idx,'take',pile_idx)
-            elif action == 'draw':
-                c = self.deck.pop(0)
-                self.log('Drew a '+c)
-                pile_idx = player.select_pile(c)
-                self.piles[pile_idx].append(c)
-                self.log('Placed on pile '+str(pile_idx))
-                self.last_action = (self.player_idx,'draw',pile_idx)
-                
+            else:
+                # player can choose an action
+                action = player.get_action()
+                if action == 'take':
+                    pile_idx = player.select_pile()
+                    player.take_cards(self.piles[pile_idx])
+                    self.piles[pile_idx] = []
+                    self.piles_taken[pile_idx] = True
+                    self.log(player.name+' takes pile '+str(pile_idx))
+                    player.out = True
+                    self.players_out[self.player_idx] = True
+                    self.last_action = (self.player_idx,'take',pile_idx)
+                elif action == 'draw':
+                    c = self.deck.pop(0)
+                    self.log('Drew a '+c)
+                    self.drawn_card = c
+                    self.last_action = (self.player_idx,'draw',c)
+        else:
+            self.log('get decision for placing drawn card: '+self.drawn_card)
+            pile_idx = player.select_pile(self.drawn_card)
+            self.log('pile_idx = '+str(pile_idx))
+            self.piles[pile_idx].append(self.drawn_card)
+            self.log('Placed on pile '+str(pile_idx))
+            self.last_action = (self.player_idx,'place',pile_idx)
+            
         # check for last round
         cards_left = len(self.deck)
         self.log('Cards left: '+str(cards_left))
@@ -186,13 +192,14 @@ class ChromakinGame(object):
             # round is the starting player for the next round
             self.player_idx -= 1
             
-        # choose next player
-        while True and not self.game_over:
-            self.player_idx += 1
-            if self.player_idx == self.n_players:
-                self.player_idx = 0
-            if not self.players_out[self.player_idx]:
-                break
+        # choose next player unless last action was draw
+        if self.last_action[1] != 'draw':
+            while True and not self.game_over:
+                self.player_idx += 1
+                if self.player_idx == self.n_players:
+                    self.player_idx = 0
+                if not self.players_out[self.player_idx]:
+                    break
             
 
     def play(self):
@@ -314,6 +321,8 @@ class ChromakinGame(object):
         game_state['n_players'] = self.n_players
         game_state['current_player'] = self.player_idx
         game_state['players_out'] = self.players_out
+        game_state['drawn_card'] = self.drawn_card
+        game_state['cards_remaining'] = len(self.deck)
         return game_state
     
     def update_players(self):
@@ -419,7 +428,7 @@ class ChromakinGame(object):
             i += 1
         return (piles_take,idx_take)
 
-    def get_piles_draw(self):
+    def get_piles_place(self):
         """ get the piles which can accept another card
 
         Returns a tuple (P,I), where P is a list of the available piles, and

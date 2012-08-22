@@ -2,8 +2,9 @@
 
 <form action="/chromakin/startgame/" method="post">
 {% csrf_token %}
-{% for i in 12345|make_list %}
-    <label for="player{{i}}">Player {{i}}</label>
+Player 1: You<br />
+{% for i in 2345|make_list %}
+    <label for="player{{i}}">Player {{i}}: </label>
     <select id="player{{i}}" name="player{{i}}">
         <option value="none">None</option>
         {% for player in player_list %}

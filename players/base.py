@@ -38,6 +38,7 @@ class PlayerBase(object):
 
     def get_action(self):
         pass
+    
     def end_game(self):
         pass
 
@@ -64,7 +65,7 @@ class PlayerBase(object):
         return self.is_out()
     
     def can_draw(self):
-        [_,idx_draw] = self.get_piles_draw()
+        [_,idx_draw] = self.get_piles_place()
         return (len(idx_draw) > 0)
     
     def can_take(self):
@@ -88,7 +89,7 @@ class PlayerBase(object):
             i += 1
         return (piles_take,idx_take)
 
-    def get_piles_draw(self):
+    def get_piles_place(self):
         """ get the piles which can accept another card
 
         Returns a tuple (P,I), where P is a list of the available piles, and
@@ -124,14 +125,14 @@ class PlayerBase(object):
                 idx = idx_take[counter]
         return idx
 
-    def find_optimal_pile_draw(self,new_card):
+    def find_optimal_pile_place(self,new_card):
         # loop through each pile, and score each one with the addition of
         # the new card. place the new card where the score would be the
         # highest
         idx = -1
         max_score = -1000
         counter = -1
-        [piles_draw,idx_draw] = self.get_piles_draw()
+        [piles_draw,idx_draw] = self.get_piles_place()
         for p in piles_draw:
             counter += 1
             pile_score = self.evaluate_pile(p+[new_card])

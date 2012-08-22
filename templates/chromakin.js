@@ -1,5 +1,5 @@
 var id_interval
-
+var do_poll = false
 var color_values = new Array()
 color_values["pink"] = "#ff00ff"
 color_values["blue"] = "#0000ff"
@@ -22,72 +22,117 @@ function autoSize() {
 }
 
 function pollGame(){
-    $.ajax({
-        url:"{% url chromakin.views.update_game %}",
-        success:renderGameState
-    })
+    if (do_poll){
+        $.ajax({
+            url:"{% url chromakin.views.update_game %}",
+            success:renderGameState
+        })
+    }
+}
+function setCardColor(card,color){
+    if(color=='wild'){
+       id = card.find('.wild_gradient').attr('id')
+       card.find('.gradient').attr('xlink:href','#'+id)
+       card.find('#bonus_text').hide()
+    }
+    else if(color=='+2'){
+       id = card.find('.single_gradient').attr('id')
+       card.find('.gradient').attr('xlink:href','#'+id)
+       card.find('.single_gradient stop').css('stopColor',color_values['bonus'])
+       card.find('#bonus_text').show()
+    }
+    else{
+       id = card.find('.single_gradient').attr('id')
+       card.find('.gradient').attr('xlink:href','#'+id)
+       card.find('.single_gradient stop').css('stopColor',color_values[color])
+       card.find('#bonus_text').hide()
+    }
+}
+
+function enablePlayerInput(state){
+    // TODO: It seems that after several player actions in a round,
+    // the click events will start to fire multiple times.
+    last_action = state.last_action
+    
+    if (last_action[1] != 'draw'){
+        $('.deck').click(function(event){
+            console.log('clicked on deck')
+            $.ajax({
+                url:"{% url chromakin.views.get_player_input %}",
+                data:{action:"draw",idx:"-1"},
+                success:renderGameState   
+            })
+            event.stopPropagation()
+        })
+    }
+    else{
+        $('.deck').unbind('click')
+    }
+    // if the last action was to draw, clicking a pile indicates
+    // where to place the drawn card. Otherwise, it indicates which
+    // pile the player wants to pick up
+    if (last_action[1] == 'draw')
+        action_string = "place"
+    else
+        action_string = "take"
+        
+    for (i = 0 ; i < state.piles.length ; i++){
+        $('.pile').eq(i).bind('click',{idx:i},function(event){
+            console.log('clicked on pile '+event.data.idx)
+            $.ajax({
+                url:"{%url chromakin.views.get_player_input%}",
+                data:{"action":action_string,"idx":event.data.idx},
+                success:renderGameState
+                })
+            event.stopPropagation()
+        })
+    }
+    console.log('Player input enabled; pile onclick is: '+action_string)
+}
+
+function disablePlayerInput(){
+    console.log('disabling input')
+    $('.deckcontainer').unbind('click')
+    $('.pile').unbind('click')
 }
 
 function animateAction(action,piles){
     action_type = action[1]
-    pile_idx = action[2]
-    pile_obj = $('#pilecontainer div').eq(pile_idx)
     if (action_type == 'take'){
+        pile_idx = action[2]
+        pile_obj = $('#pilecontainer div').eq(pile_idx)
         console.log('taking pile '+pile_idx)
         pile_obj.find('.first_card, .second_card, .third_card')
-            .css('visibility','hidden')
+            .hide()
     }
-    else if (action_type == 'draw'){        
+    else if (action_type == 'draw'){
+        color = action[2]
+        setCardColor($(".drawn"),color)
+        $(".drawn").show()
+    }
+    else if (action_type == 'place'){        
         // compose the selector for the new card
+        pile_idx = action[2]
         card_idx = piles[pile_idx].length
         selector_template = "#pilecontainer div:eq(X) object:eq(Y)"
         selector = selector_template.replace('X',String(pile_idx)) ;
         selector = selector.replace('Y',card_idx)
+        pile = $('#pilecontainer .pile').eq(pile_idx)
+        if (card_idx == 1){
+            card = pile.find('.first_card')
+        }
+        else if(card_idx == 2){
+            card = pile.find('.second_card')
+        }
+        else if(card_idx == 3){
+            card = pile.find('.third_card')
+        }
         
         // change the card color
         color = piles[pile_idx][card_idx-1]
         console.log('placing '+color+' on pile '+pile_idx+' position '+card_idx)
-        if(color=='wild'){
-            $(selector)[0].getSVGDocument()
-                .getElementById('gradient')
-                .setAttribute('xlink:href',"#wild_gradient")
-            $(selector)[0].getSVGDocument()
-                .getElementById('bonus_text')
-                .style['visibility'] = 'hidden'
-        }
-        else if(color=='+2'){
-            $(selector)[0].getSVGDocument()
-                .getElementById('gradient')
-                .setAttribute('xlink:href',"#single_gradient")
-            $(selector)[0].getSVGDocument()
-                .getElementById('single_gradient')
-                .getElementsByTagName("stop")[0]
-                .style['stopColor']=color_values['bonus']
-            $(selector)[0].getSVGDocument()
-                .getElementById('single_gradient')
-                .getElementsByTagName("stop")[1]
-                .style['stopColor']=color_values['bonus']
-            $(selector)[0].getSVGDocument()
-                .getElementById('bonus_text')
-                .style['visibility'] = 'visible'
-        }
-        else{
-            $(selector)[0].getSVGDocument()
-                .getElementById('gradient')
-                .setAttribute('xlink:href',"#single_gradient")
-            $(selector)[0].getSVGDocument()
-                .getElementById('single_gradient')
-                .getElementsByTagName("stop")[0]
-                .style['stopColor']=color_values[color]
-            $(selector)[0].getSVGDocument()
-                .getElementById('single_gradient')
-                .getElementsByTagName("stop")[1]
-                .style['stopColor']=color_values[color]
-            $(selector)[0].getSVGDocument()
-                .getElementById('bonus_text')
-                .style['visibility'] = 'hidden'
-        }
-        $(selector).css('visibility','visible')
+        setCardColor(card,color)
+        card.show()
     }
 }
 
@@ -104,13 +149,23 @@ function sortCards(cards){
         if(c != 'wild' & c != '+2')
             list.push(c)
     }
-    list.sort(function(a,b){return cards[b]-cards[a]})
+    list.sort(function(a,b){
+        if (cards[a] !== cards[b]){ 
+            return (cards[b] - cards[a])
+        }
+        else{
+            return (a < b) ? 1 : -1
+        }})
     
     return list
 }
 
 function renderGameState(state){
+    if (state.last_action[1] == 'INVALID')
+        return
+    
     var game_over = state.game_over
+    $('.drawn').hide()
     if (!game_over){
         var last_action = state.last_action
         $("#textArea").val(last_action)
@@ -139,13 +194,12 @@ function renderGameState(state){
     
     // mark taken piles
     for (i = 0 ; i < state.piles.length ; i++){
-        taken_marker = $(".pile")[i].getSVGDocument()
-                .getElementById('taken') 
+        taken_marker = $(".empty_pile").eq(i).find('#taken')
         if (state.piles_taken[i]){
-            taken_marker.style['visibility']='visible'                
+            taken_marker.show()                
         }
         else{
-            taken_marker.style['visibility'] = 'hidden'
+            taken_marker.hide()
         }
     }
     
@@ -186,10 +240,36 @@ function renderGameState(state){
                 .addClass('outplayer')
         }
     }
+    
+    // check if the current player is human, and pause polling
+    // if necessary
+    
+    // TODO: currently we assume the first player is always 
+    //       human.
+    if (state.current_player == 0){
+        enablePlayerInput(state)
+        do_poll = false
+    }
+    else if(!do_poll && state.current_player != 0){
+        disablePlayerInput()
+        do_poll = true
+    }
 }
 
 $(document).ready(function() {
     // do stuff when DOM is ready
+    if ({{state.current_player}} != 0){
+        do_poll = true
+    }
+    else{
+        state = new Object()
+        state.last_action = ''
+        state.idx = -1
+        state.piles = {{state.piles}}
+        enablePlayerInput(state)
+        do_poll = false
+    }
+    
     id_interval = self.setInterval(pollGame,1000) ;
     
     $(function() {
@@ -199,4 +279,6 @@ $(document).ready(function() {
             .keyup(autoSize);
      autoSize();
     });
+    
+    
 });

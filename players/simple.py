@@ -27,7 +27,7 @@ class RandomBot(PlayerBase):
 
     def decision_draw(self,new_card):
         """ Randomly decide on which pile to place the drawn card """
-        [_,idx_draw] = self.get_piles_draw()
+        [_,idx_draw] = self.get_piles_place()
         return sample(idx_draw,1)[0]
 
 class GreedyBot(PlayerBase):
@@ -50,7 +50,7 @@ class GreedyBot(PlayerBase):
         return self.find_optimal_pile_take()
 
     def decision_draw(self,new_card):
-        return self.find_optimal_pile_draw(new_card)
+        return self.find_optimal_pile_place(new_card)
 
 class BuilderBot(PlayerBase):
     """
@@ -61,7 +61,7 @@ class BuilderBot(PlayerBase):
         PlayerBase.__init__(self,name)
         
     def get_action(self):
-        [_,idx_draw] = self.get_piles_draw()
+        [_,idx_draw] = self.get_piles_place()
         if len(idx_draw) > 0:
             return 'draw'
         else:
@@ -71,4 +71,4 @@ class BuilderBot(PlayerBase):
         return self.find_optimal_pile_take()
 
     def decision_draw(self,new_card):
-        return self.find_optimal_pile_draw(new_card)
+        return self.find_optimal_pile_place(new_card)

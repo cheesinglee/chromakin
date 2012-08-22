@@ -15,7 +15,9 @@ Coloretto simulator in Django
 2. `cd` into your project directory and clone the repository
 3. In your `settings.py` for your django project, add `'chromakin'`
 to the `INSTALLED_APPS` list
-4. If you don't have a cache set up for your django project, 
+4. In the same file, look for the `DATABASES` variable, and edit the `engine` field
+to be: 'django.db.backends.sqlite3'
+5. If you don't have a cache set up for your django project, 
 append this to the end:
    CACHES = {
         'default': {
@@ -28,7 +30,7 @@ append this to the end:
         }
     }
 
-5. In your django project's `urls.py` add the following entry to `urlpatterns`:
+6. In your django project's `urls.py` add the following entry to `urlpatterns`:
     url(r'^chromakin/', include('chromakin.urls'))
         
 ## Running

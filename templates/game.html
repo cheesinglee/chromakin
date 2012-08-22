@@ -6,22 +6,37 @@
 <div id="gamecontainer">
     <div id="pilecontainer">
     {% for i in state.piles|length|get_range %}
-    <div>
-    <object class="pile" data="{{ STATIC_URL }}img/empty_pile.svg"></object>
+    <div class="pile">
+    {%comment%}
+    <object class="empty_pile" data="{{ STATIC_URL }}img/empty_pile.svg"></object>
     <object class="first_card" data="{{ STATIC_URL }}img/card.svg" type="image/svg+xml"></object>
     <object class="second_card" data="{{ STATIC_URL }}img/card.svg" type="image/svg+xml"></object>
     <object class="third_card" data="{{ STATIC_URL }}img/card.svg" type="image/svg+xml"></object>
+    {%endcomment%}
+    {%include "empty_pile.svg"%}
+    {%include "card.svg" with card_position="first_card" idx=i|add:"10" %}
+    {%include "card.svg" with card_position="second_card" idx=i|add:"20"%}
+    {%include "card.svg" with card_position="third_card" idx=i|add:"30"%}
     </div>
     {% endfor %}
-    <div>
+    <div class="deckcontainer">
+        {%comment%}
         <object class="deck" data="{{ STATIC_URL }}img/deck.svg"></object>
+        {%endcomment%}
+        {%include "deck.svg"%}
+    </div>
+    <div>
+        {%comment%}
+        <object class="drawn" data="{{ STATIC_URL }}img/card.svg"></object>
+        {%endcomment%}
+        {%include 'card.svg' with card_position='drawn' idx=99%}
     </div>
     </div>
 </div>
 <div id="playercontainer">
     {%for p in player_names%}
     <div class="playerbox">
-        <span class="playername">{{p}}</span> - <span id="score">0</span><br />
+        <span class="playername">{{p}}</span> : <span id="score">0</span><br />
         Wilds: <span class="wilds">0</span>       Bonus: <span class="bonus">0</span><br />
     </div>
     {%endfor%}
