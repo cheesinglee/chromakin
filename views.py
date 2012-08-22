@@ -11,6 +11,7 @@ from django.utils import simplejson
 from chromakin.game import ChromakinGame
 from chromakin.models import Game, Player
 from chromakin.players import *
+from chromakin import EXCLUDE_AIS
 
 # Create your views here.
 
@@ -30,7 +31,8 @@ def update_ai_list():
     
     # create database entries for new players
     logger = logging.getLogger('chromakin.custom')
-    new_types = [ai for ai in ai_types if ai.__name__ not in known_types]
+    new_types = [ai for ai in ai_types if ai.__name__ not in known_types and
+                                        ai.__name__ not in EXCLUDE_AIS]
     for ai in new_types:
         logger.debug('creating Player for '+ai.__name__)
         p = Player(type='AI',module=ai.__module__,
