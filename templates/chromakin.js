@@ -62,7 +62,7 @@ function enablePlayerInput(state){
                 data:{action:"draw",idx:"-1"},
                 success:renderGameState   
             })
-            event.stopPropagation()
+            event.stopImmediatePropagation()
         })
     }
     else{
@@ -77,15 +77,15 @@ function enablePlayerInput(state){
         action_string = "take"
         
     for (i = 0 ; i < state.piles.length ; i++){
-        $('.pile').eq(i).bind('click',{idx:i},function(event){
+        $('.pile').eq(i).children().bind('click',{idx:i},function(event){
             console.log('clicked on pile '+event.data.idx)
             $.ajax({
                 url:"{%url chromakin.views.get_player_input%}",
                 data:{"action":action_string,"idx":event.data.idx},
                 success:renderGameState
                 })
-            event.stopPropagation()
-        })
+            event.stopImmediatePropagation()
+        });
     }
     console.log('Player input enabled; pile onclick is: '+action_string)
 }
@@ -194,7 +194,7 @@ function renderGameState(state){
             }
         }
         $('#textArea').append('\n'+winner+' is the winner')
-        $('#textArea').scrollTop(9999)
+        $('#textArea').scrollTop(99999)
     }
     
     // hack to clear last untaken pile in 2-player game
